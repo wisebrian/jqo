@@ -1,0 +1,27 @@
+{
+	"name": "jqo",
+	"version": 1.0,
+	"tags": [
+		"json",
+		"tool"
+	],
+	"empty": {
+		"o": {},
+		"a": [],
+		"s": ""
+	},
+	"nested": [
+		1,
+		[
+			2,
+			[
+				3,
+				{
+					"deep": true
+				}
+			]
+		],
+		null
+	],
+	"flag": false
+}

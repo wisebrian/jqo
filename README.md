@@ -5,7 +5,9 @@ WebAssembly so the data it handles never leaves the visitor's machine. It
 does four things:
 
 - **Parse**: validates JSON against RFC 8259 and points at the first problem by
-  line, column and byte offset, in words a non-programmer can act on. It also
+  line, column and byte offset, in words a non-programmer can act on. A missing
+  comma or bracket is pointed at where it belongs, judging by the indentation,
+  rather than where parsing stopped, which can be lines further down. It also
   warns about valid JSON that is probably a mistake (duplicate keys, integers
   JavaScript can't hold exactly, lone surrogate escapes), summarises the
   document and lists its nodes for a tree view. Lenient mode also accepts
@@ -138,6 +140,21 @@ and says where it is.
 The tests check this claim against a second implementation, `jsontext`. On
 lone surrogate escapes the two references disagree with each other: `jsontext`
 rejects them, while jqo and `json.Valid` accept them with a warning.
+
+Error positions differ on purpose. Every parser stops at the first byte that
+can't continue the document, and `encoding/json`, `jsontext` and jqo all stop
+at the same byte, but for a missing comma that byte is the next key, a line
+down, and for a missing `}` it can be the end of the input. When parsing has
+failed, jqo reads the indentation the way a person would and moves the error
+to where the comma or bracket belongs; the message says where parsing stopped:
+
+```text
+Line 4, column 16: the object that starts at line 2, column 12 is not closed:
+a } is missing here; the } at line 6, column 1 closes it instead
+```
+
+Minified JSON, contents not indented under their bracket, and tabs mixed with
+spaces give it nothing to go on, and the error stays where parsing stopped.
 
 ## Testing
 

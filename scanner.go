@@ -117,8 +117,12 @@ func (s *scanner) fail(code Code, off int, msg string) token {
 	return token{kind: tokError}
 }
 
-// error returns the recorded error with its position resolved.
-func (s *scanner) error() *Error { return finish(s.data, s.err) }
+// error returns the recorded error with its position resolved, after
+// diagnose has moved it to where the mistake most likely is.
+func (s *scanner) error() *Error {
+	e, _ := diagnose(s.data, s.lenient, s.maxDepth, s.err)
+	return finish(s.data, e)
+}
 
 // next returns the next bracket or literal, having checked that the grammar
 // allows it there.
@@ -263,8 +267,12 @@ func (s *scanner) atEnd() token {
 }
 
 // where describes a second place for a message, as "line 2, column 9".
-func (s *scanner) where(off int) string {
-	p := locate(s.data, []int{off})[0]
+func (s *scanner) where(off int) string { return place(s.data, off) }
+
+// place describes the position of off in data for a message, as "line 2,
+// column 9".
+func place(data []byte, off int) string {
+	p := locate(data, []int{off})[0]
 	return "line " + strconv.Itoa(p.Line) + ", column " + strconv.Itoa(p.Column)
 }
 

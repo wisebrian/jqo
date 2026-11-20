@@ -82,7 +82,7 @@ var errorCases = []struct {
 	{"missing colon", "{\"a\" 1}", CodeExpectedColon, 1, 6, `after the key "a"`},
 	{"key without value", "{\"a\"}", CodeExpectedColon, 1, 5, "expected :"},
 	{"equals instead of colon", "{\"a\" = 1}", CodeExpectedColon, 1, 6, "found ="},
-	{"missing comma in object", "{\n  \"a\": 1\n  \"b\": 2\n}", CodeExpectedCommaOrClose, 3, 3, "expected , or } after the value (is a comma missing?)"},
+	{"missing comma in object", "{\n  \"a\": 1\n  \"b\": 2\n}", CodeExpectedCommaOrClose, 2, 9, "a comma is missing here, before the key at line 3, column 3"},
 	{"missing comma in array", "[1 2]", CodeExpectedCommaOrClose, 1, 4, "expected , or ] after the value"},
 	{"stray character after value", "[1 :]", CodeExpectedCommaOrClose, 1, 4, "found :"},
 	{"mismatched close", "[1, 2}", CodeMismatchedBracket, 1, 6, "close the array that starts at line 1, column 1"},

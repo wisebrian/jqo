@@ -17,7 +17,10 @@ import (
 	"github.com/wisebrian/jqo/internal/jsapi"
 )
 
-var uint8Array = js.Global().Get("Uint8Array")
+var (
+	uint8Array   = js.Global().Get("Uint8Array")
+	stringObject = js.Global().Get("String")
+)
 
 func main() {
 	jsapi.Now = func() int64 { return int64(js.Global().Get("Date").Call("now").Float()) / 1000 }
@@ -71,8 +74,10 @@ func toGo(v js.Value) (any, bool, string) {
 	case js.TypeNumber:
 		return v.Float(), true, ""
 	case js.TypeString:
-		// A string's UTF-8 form is never shorter than its UTF-16 length.
-		if v.Length() > jsapi.MaxInput {
+		// A string's UTF-8 form is never shorter than its UTF-16 length, so
+		// a longer string is refused before it is copied. Length panics on
+		// a string, which is not an object; its String wrapper has one.
+		if stringObject.New(v).Length() > jsapi.MaxInput {
 			return nil, false, ""
 		}
 		return []byte(v.String()), true, ""
@@ -86,11 +91,15 @@ func toGo(v js.Value) (any, bool, string) {
 			js.CopyBytesToGo(b, v)
 			return b, true, ""
 		}
-		keys := js.Global().Get("Object").Call("keys", v)
-		m := make(map[string]any, keys.Length())
-		for i := 0; i < keys.Length(); i++ {
-			k := keys.Index(i).String()
-			switch x := v.Get(k); x.Type() {
+		// Object.entries reads the options through Call, so a getter that
+		// throws becomes a panic that wrap recovers. v.Get would let the
+		// exception escape into the caller, past the recover.
+		entries := js.Global().Get("Object").Call("entries", v)
+		m := make(map[string]any, entries.Length())
+		for i := 0; i < entries.Length(); i++ {
+			e := entries.Index(i)
+			k := e.Index(0).String()
+			switch x := e.Index(1); x.Type() {
 			case js.TypeBoolean:
 				m[k] = x.Bool()
 			case js.TypeNumber:

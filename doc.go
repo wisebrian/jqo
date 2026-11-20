@@ -6,7 +6,9 @@
 // warnings and a summary. The warnings cover duplicate keys, integers that
 // JavaScript can't hold exactly and lone surrogate escapes. For invalid input
 // the *Error points at the first problem by byte offset, line and column, in
-// words a non-programmer can act on. Options.Lenient also accepts comments,
+// words a non-programmer can act on. A missing comma or bracket is placed
+// where the indentation says it belongs, not where parsing stopped, which can
+// be lines further down. Options.Lenient also accepts comments,
 // trailing commas and a byte order mark, and Repair removes them.
 //
 // Format lays a document out again without re-encoding its values, so key

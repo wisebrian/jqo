@@ -30,6 +30,7 @@ const (
 	CodeExpectedColon        Code = "expected-colon"          // {"a" 1}
 	CodeExpectedCommaOrClose Code = "expected-comma-or-close" // [1 2], usually a missing comma
 	CodeMismatchedBracket    Code = "mismatched-bracket"      // [1, 2}
+	CodeMissingBracket       Code = "missing-bracket"         // a { [ ] or } left out; Pos is where the indentation says it belongs
 	CodeUnexpectedEnd        Code = "unexpected-end"          // the input stops inside an object or array
 	CodeExtraData            Code = "extra-data"              // a second value after the first
 	CodeTooDeep              Code = "too-deep"                // nesting beyond Options.MaxDepth
@@ -80,7 +81,9 @@ type Error struct {
 	// "expected , or } after the value", so a UI can place it as it likes.
 	Message string
 	// Pos is zero (Line 0) when the problem has no single place, as with
-	// CodeTooLarge.
+	// CodeTooLarge. For a missing comma or bracket it is where the
+	// indentation says the comma or bracket belongs, which can be well before
+	// the place parsing stopped; Message then names that place too.
 	Pos Position
 	// Snippet is the line holding Pos, cut to about 80 characters around it,
 	// with control characters and invisible spaces replaced by visible

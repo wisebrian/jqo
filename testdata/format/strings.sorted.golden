@@ -1,0 +1,7 @@
+{
+  "esc": "\" \\ \/ \b \f \n \r \t \u00E9 \ud83d\ude00",
+  "html": "<a href=\"x\">&amp;</a>",
+  "lone": "\ud800",
+  "raw": "é 😀 日本",
+  "sep": "a b"
+}
